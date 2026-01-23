@@ -1,75 +1,40 @@
-import { useParams } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 
-export default function Tool() {
-  const { name } = useParams();
-  const [input, setInput] = useState("");
+const API = "https://web-production-1d44e.up.railway.app";
+
+export default function Tool({ name }) {
+  const [query, setQuery] = useState("");
   const [result, setResult] = useState("");
-  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("token"); // 🔑 email users
 
   const runTool = async () => {
-    setLoading(true);
-    setResult("");
-
     try {
       const res = await axios.post(
-        `https://web-production-1d44e.up.railway.app/api/${name}`,
-        { text: input }
+        `${API}/api/tool/${name}`,
+        { query },
+        token
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : {} // telegram users
       );
 
       setResult(res.data.result);
     } catch (err) {
-      alert("Tool execution failed");
+      setResult("❌ Unauthorized or error running tool");
     }
-
-    setLoading(false);
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#020617",
-      color: "white",
-      padding: 40
-    }}>
-      <h1 style={{ marginBottom: 20 }}>
-        🛠 {name.toUpperCase()} Tool
-      </h1>
-
+    <div>
       <input
-        style={{ width: "100%", padding: 12 }}
-        placeholder="Enter input..."
-        value={input}
-        onChange={e => setInput(e.target.value)}
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        placeholder="Enter keyword or URL"
       />
 
-      <button
-        onClick={runTool}
-        style={{
-          marginTop: 20,
-          padding: 12,
-          background: "#2563eb",
-          color: "white",
-          border: "none"
-        }}
-      >
-        Run Tool
-      </button>
+      <button onClick={runTool}>Run Tool</button>
 
-      {loading && <p style={{ marginTop: 20 }}>Processing...</p>}
-
-      {result && (
-        <div style={{
-          marginTop: 30,
-          padding: 20,
-          background: "#020617",
-          border: "1px solid #1e293b"
-        }}>
-          <h3>Result</h3>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{result}</pre>
-        </div>
-      )}
+      {result && <pre>{result}</pre>}
     </div>
   );
 }
