@@ -10,39 +10,38 @@ export default function Tool() {
   const [loading, setLoading] = useState(false);
 
   const runTool = async () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user"));
 
-  // ✅ Guard: stop invalid requests
-  if (!user || !user.telegram_id) {
-    alert("Please login again");
-    return;
-  }
+    // ✅ HARD GUARD — prevents 422 forever
+    if (!user || !user.telegram_id) {
+      alert("Session expired. Please login again.");
+      return;
+    }
 
-  setLoading(true);
-  setResult("");
+    setLoading(true);
+    setResult("");
 
-  try {
-    const res = await axios.post(
-      `https://web-production-1d44e.up.railway.app/api/tools/${name}`,
-      {
-        telegram_id: user.telegram_id,
-        text: input
-      }
-    );
+    try {
+      const res = await axios.post(
+        `https://web-production-1d44e.up.railway.app/api/tools/${name}`,
+        {
+          telegram_id: user.telegram_id,
+          text: input
+        }
+      );
 
-    setResult(res.data.result);
-  } catch (err) {
-    const message =
-      err.response?.data?.detail ||
-      err.response?.data?.error ||
-      "Something went wrong";
+      setResult(res.data.result);
+    } catch (err) {
+      const message =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Something went wrong";
 
-    alert(message);
-  }
+      alert(message);
+    }
 
-  setLoading(false);
-};
-
+    setLoading(false);
+  };
 
   return (
     <div
@@ -66,14 +65,15 @@ export default function Tool() {
 
       <button
         onClick={runTool}
+        disabled={loading}
         style={{
           marginTop: 20,
           padding: 12,
           background: "#2563eb",
           color: "white",
-          border: "none"
+          border: "none",
+          cursor: loading ? "not-allowed" : "pointer"
         }}
-        disabled={loading}
       >
         {loading ? "Running..." : "Run Tool"}
       </button>
