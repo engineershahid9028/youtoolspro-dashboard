@@ -14,12 +14,16 @@ export default function Tool() {
 
     try {
       const res = await axios.post(
-        `https://web-production-1d44e.up.railway.app/api/${name}`,
-        { text: input }
+        `https://web-production-1d44e.up.railway.app/api/tools/${name}`,
+        {
+          telegram_id: JSON.parse(localStorage.getItem("user"))?.telegram_id,
+          keyword: input
+        }
       );
 
       setResult(res.data.result);
     } catch (err) {
+      console.error(err);
       alert("Tool execution failed");
     }
 
@@ -27,12 +31,14 @@ export default function Tool() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#020617",
-      color: "white",
-      padding: 40
-    }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#020617",
+        color: "white",
+        padding: 40
+      }}
+    >
       <h1 style={{ marginBottom: 20 }}>
         🛠 {name.toUpperCase()} Tool
       </h1>
@@ -53,19 +59,22 @@ export default function Tool() {
           color: "white",
           border: "none"
         }}
+        disabled={loading}
       >
-        Run Tool
+        {loading ? "Running..." : "Run Tool"}
       </button>
 
       {loading && <p style={{ marginTop: 20 }}>Processing...</p>}
 
       {result && (
-        <div style={{
-          marginTop: 30,
-          padding: 20,
-          background: "#020617",
-          border: "1px solid #1e293b"
-        }}>
+        <div
+          style={{
+            marginTop: 30,
+            padding: 20,
+            background: "#020617",
+            border: "1px solid #1e293b"
+          }}
+        >
           <h3>Result</h3>
           <pre style={{ whiteSpace: "pre-wrap" }}>{result}</pre>
         </div>
