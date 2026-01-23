@@ -149,7 +149,41 @@ export default function Login() {
             >
               Login with Email
             </button>
+<button
+  style={{
+    width: "100%",
+    marginTop: 20,
+    padding: 12,
+    background: "#2563eb",
+    color: "white",
+    border: "none",
+    cursor: "pointer"
+  }}
+  onClick={emailLogin}
+>
+  Login with Email
+</button>
+<div style={{ marginTop: 15, textAlign: "center" }}>
+  <span
+    style={{ color: "#60a5fa", cursor: "pointer", fontSize: 14 }}
+    onClick={() => (window.location.href = "/register")}
+  >
+    Create an account
+  </span>
+  <br />
+  <span
+    style={{ color: "#94a3b8", cursor: "pointer", fontSize: 13 }}
+    onClick={() => alert("Forgot password coming soon")}
+  >
+    Forgot password?
+  </span>
+</div>
+
+
+
+
           </>
+          
         )}
       </div>
     </div>
