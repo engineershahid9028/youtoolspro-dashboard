@@ -3,7 +3,6 @@ import { useState } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 
-
 export default function Tool() {
   const { name } = useParams();
   const [input, setInput] = useState("");
@@ -15,24 +14,25 @@ export default function Tool() {
     setResult("");
 
     try {
+      const user = JSON.parse(localStorage.getItem("user"));
+
       const res = await axios.post(
         `https://web-production-1d44e.up.railway.app/api/tools/${name}`,
         {
-          telegram_id: JSON.parse(localStorage.getItem("user"))?.telegram_id,
-          keyword: input
+          telegram_id: user?.telegram_id,
+          text: input          // ✅ FIX: use `text`, not `keyword`
         }
       );
 
       setResult(res.data.result);
     } catch (err) {
-  const message =
-    err.response?.data?.detail ||
-    err.response?.data?.error ||
-    "Something went wrong";
+      const message =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Something went wrong";
 
-  alert(message);
-}
-
+      alert(message);
+    }
 
     setLoading(false);
   };
@@ -84,9 +84,8 @@ export default function Tool() {
         >
           <h3>Result</h3>
           <div style={{ lineHeight: 1.7 }}>
-  <ReactMarkdown>{result}</ReactMarkdown>
-</div>
-
+            <ReactMarkdown>{result}</ReactMarkdown>
+          </div>
         </div>
       )}
     </div>
