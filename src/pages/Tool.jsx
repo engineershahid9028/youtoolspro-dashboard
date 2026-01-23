@@ -10,32 +10,39 @@ export default function Tool() {
   const [loading, setLoading] = useState(false);
 
   const runTool = async () => {
-    setLoading(true);
-    setResult("");
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
+  // ✅ Guard: stop invalid requests
+  if (!user || !user.telegram_id) {
+    alert("Please login again");
+    return;
+  }
 
-      const res = await axios.post(
-        `https://web-production-1d44e.up.railway.app/api/tools/${name}`,
-        {
-          telegram_id: user?.telegram_id,
-          text: input          // ✅ FIX: use `text`, not `keyword`
-        }
-      );
+  setLoading(true);
+  setResult("");
 
-      setResult(res.data.result);
-    } catch (err) {
-      const message =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        "Something went wrong";
+  try {
+    const res = await axios.post(
+      `https://web-production-1d44e.up.railway.app/api/tools/${name}`,
+      {
+        telegram_id: user.telegram_id,
+        text: input
+      }
+    );
 
-      alert(message);
-    }
+    setResult(res.data.result);
+  } catch (err) {
+    const message =
+      err.response?.data?.detail ||
+      err.response?.data?.error ||
+      "Something went wrong";
 
-    setLoading(false);
-  };
+    alert(message);
+  }
+
+  setLoading(false);
+};
+
 
   return (
     <div
