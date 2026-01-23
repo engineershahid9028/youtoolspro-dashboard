@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+
 
 export default function Tool() {
   const { name } = useParams();
@@ -23,9 +25,14 @@ export default function Tool() {
 
       setResult(res.data.result);
     } catch (err) {
-      console.error(err);
-      alert("Tool execution failed");
-    }
+  const message =
+    err.response?.data?.detail ||
+    err.response?.data?.error ||
+    "Something went wrong";
+
+  alert(message);
+}
+
 
     setLoading(false);
   };
@@ -76,7 +83,10 @@ export default function Tool() {
           }}
         >
           <h3>Result</h3>
-          <pre style={{ whiteSpace: "pre-wrap" }}>{result}</pre>
+          <div style={{ lineHeight: 1.7 }}>
+  <ReactMarkdown>{result}</ReactMarkdown>
+</div>
+
         </div>
       )}
     </div>
