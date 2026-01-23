@@ -14,7 +14,7 @@ export default function Register() {
         { email, password }
       );
 
-      setSuccess("Account created! You can now login.");
+      setSuccess("Success: Account created! You can now login.");
       setError("");
     } catch {
       setError("Email already exists");
