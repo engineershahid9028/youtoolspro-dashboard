@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
 const API = "https://web-production-1d44e.up.railway.app";
@@ -9,11 +9,7 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [payments, setPayments] = useState([]);
 
-  useEffect(() => {
-    loadAll();
-  }, []);
-
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     const statsRes = await axios.get(`${API}/api/admin/stats/${user.telegram_id}`);
     const usersRes = await axios.get(`${API}/api/admin/users/${user.telegram_id}`);
     const paymentsRes = await axios.get(`${API}/api/admin/payments/${user.telegram_id}`);
@@ -21,7 +17,11 @@ export default function Admin() {
     setStats(statsRes.data);
     setUsers(usersRes.data);
     setPayments(paymentsRes.data);
-  };
+  }, [user.telegram_id]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   const action = async (endpoint, userId) => {
     await axios.post(`${API}${endpoint}`, {
