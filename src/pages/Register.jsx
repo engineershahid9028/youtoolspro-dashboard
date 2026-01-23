@@ -1,24 +1,54 @@
 import { useState } from "react";
-import axios from "axios";
+
+const API = "https://web-production-1d44e.up.railway.app";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const register = async () => {
-    try {
-      await axios.post(
-        "https://web-production-1d44e.up.railway.app/auth/register",
-        { email, password }
-      );
+    setError("");
+    setLoading(true);
 
-      setSuccess("Success: Account created! You can now login.");
-      setError("");
-    } catch {
-      setError("Email already exists");
-      setSuccess("");
+    try {
+      // 1️⃣ Register user
+      const registerRes = await fetch(`${API}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!registerRes.ok) {
+        const err = await registerRes.text();
+        throw new Error(err || "Registration failed");
+      }
+
+      // 2️⃣ Auto-login immediately
+      const loginRes = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!loginRes.ok) {
+        throw new Error("Login after signup failed");
+      }
+
+      const data = await loginRes.json();
+
+      // 3️⃣ Save session
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data));
+
+      // 4️⃣ Redirect
+      window.location.href = "/dashboard";
+
+    } catch (e) {
+      setError("Email already exists or registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,10 +67,11 @@ export default function Register() {
         borderRadius: 12,
         width: 360
       }}>
-        <h2>Create YouToolsPro Account</h2>
+        <h2>Create Account</h2>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {success && <p style={{ color: "lightgreen" }}>{success}</p>}
+        {error && (
+          <p style={{ color: "red", marginTop: 10 }}>{error}</p>
+        )}
 
         <input
           style={{ width: "100%", padding: 10, marginTop: 20 }}
@@ -51,26 +82,32 @@ export default function Register() {
 
         <input
           type="password"
-          style={{ width: "100%", padding: 10, marginTop: 15 }}
+          style={{ width: "100%", padding: 10, marginTop: 10 }}
           placeholder="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
         />
 
         <button
+          disabled={loading}
           style={{
             width: "100%",
             marginTop: 20,
             padding: 12,
-            background: "#2563eb",
+            background: loading ? "#334155" : "#2563eb",
             color: "white",
             border: "none",
-            cursor: "pointer"
+            cursor: loading ? "not-allowed" : "pointer"
           }}
           onClick={register}
         >
-          Create Account
+          {loading ? "Creating account..." : "Sign Up"}
         </button>
+
+        <p style={{ marginTop: 15, fontSize: 14 }}>
+          Already have an account?{" "}
+          <a href="/" style={{ color: "#60a5fa" }}>Login</a>
+        </p>
       </div>
     </div>
   );
